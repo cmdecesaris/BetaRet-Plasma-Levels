@@ -1,0 +1,1276 @@
+---
+title: "Factors Affecting Plasma Retinol and Beta-Carotene Levels"
+author: "Christina De Cesaris"
+date: "11/29/2020"
+output:
+  
+  html_document: default
+  pdf_document: default
+---
+
+
+
+#Exploritory Data Anaylsis 
+```{r }
+setwd("C:/Users/chris/Desktop/Stats206/Project/")
+
+plas = read.table("Plasma.txt", header=TRUE)
+head(plas)
+
+dim(plas)
+
+str(plas) #no missing values
+
+sapply(plas, class)
+
+#Qual: sex, SMOKSTAT,vituse
+
+#Quant: all others.
+```
+
+```{r }
+#potential responses
+par(mfrow=c(1,2))
+hist(plas$BETAPLASMA, col=rainbow(10),main='BETAPLASMA',xlab = "BETAPLASMA")
+
+hist(plas$RETPLASMA, col=rainbow(10),main='RETPLASMA',xlab = "RETPLASMA")
+#Ret Diet
+hist(plas$RETDIET, col=rainbow(10),main='RETDIET',xlab = "RETDIET")
+#Beta Diet
+hist(plas$BETADIET, col=rainbow(10),main='BETADIET',xlab = "BETADIET")
+
+
+#Age
+hist(plas$AGE, col=rainbow(10),main='AGE',xlab = "AGE")
+#Quetelet
+hist(plas$QUETELET, col=rainbow(10),main='QUETELET',xlab = "QUETELET")
+#Calories
+hist(plas$CALORIES, col=rainbow(10),main='CALORIES',xlab = "CALORIES")
+#Fat
+hist(plas$FAT, col=rainbow(10),main='FAT',xlab = "FAT")
+#FIBER
+hist(plas$FIBER,col=rainbow(10),main='FIBER',xlab = "FIBER")
+#ALCOHOL
+hist(plas$ALCOHOL, col=rainbow(10),main='ALCOHOL',xlab = "ALCOHOL")
+#CHOLESTEROL
+hist(plas$CHOLESTEROL, col=rainbow(10),main='CHOLESTEROL',xlab = "CHOLESTEROL")
+
+
+
+
+```
+```{r boxplot}
+par(mfrow=c(2,3))
+boxplot(plas$AGE, main='AGE Distribution',ylab= 'AGE',col=2)
+boxplot(plas$QUETELET, main='QUETELET Distribution',ylab= 'QUETELET',col=3)
+boxplot(plas$CALORIES, main='CALORIES Distribution',ylab= 'CALORIES',col=30)
+boxplot(plas$FAT, main='FAT Distribution',ylab= 'FAT',col=5)
+boxplot(plas$FIBER, main='FIBER Distribution',ylab= 'FIBER',col=6)
+boxplot(plas$ALCOHOL, main='ALCOHOL Distribution',ylab= 'ALCOHOL',col=7)
+boxplot(plas$CHOLESTEROL, main='CHOLESTEROL Distribution',ylab= 'CHOLESTEROL',col=8)
+boxplot(plas$BETADIET, main='BETADIET Distribution',ylab= 'BETADIET',col=18)
+boxplot(plas$RETDIET, main='RETDIET',ylab= 'RETDIET',col=10)
+
+
+
+
+par(mfrow=c(1,2))
+boxplot(plas$BETAPLASMA, main='BETAPLASMA',ylab= 'BETAPLASMA',col=11)
+boxplot(plas$RETPLASMA, main='RETPLASMA',ylab= 'RETPLASMA',col=13)
+
+
+```
+
+```{r pie}
+par(mfrow=c(1,2))
+#boxplot(plas$RETDIET)
+#PIE Charts for qualitative predictatiors
+
+n = dim(plas)[1]
+levels(plas$SEX)
+#SEX
+level=c('female  ','male  ') 
+percentage=round(100*table(plas$SEX)/n) #get percentages
+label=paste(level,percentage)
+label=paste(label,'%',sep='')
+pie(table(plas$SEX),labels=label,col=rainbow(length(label)),
+main='SEX')
+
+
+#SMOKSTAT
+level=c('FEMALE  ','MALE  ') 
+percentage=round(100*table(plas$SMOKSTAT)/n) #get percentages
+label=paste(
+levels(plas$SMOKSTAT),percentage)
+label=paste(label,'%',sep='')
+pie(table(plas$SMOKSTAT),labels=label,col=rainbow(length(label)),
+main='SMOKSTAT')
+
+
+#VITUSE
+
+percentage=round(100*table(plas$VITUSE)/n) #get percentages
+label=paste(levels(plas$VITUSE),percentage)
+label=paste(label,'%',sep='')
+pie(table(plas$VITUSE),labels=label,col=rainbow(length(label)),
+main='VITUSE')
+
+                                                        
+
+```
+
+
+```{r corr}
+panel.cor <- function(x, y){ 
+  usr <- par("usr"); on.exit(par(usr))
+  par(usr = c(0, 1, 0, 1))
+  r <- round(cor(x, y, use="complete.obs"), digits=2)
+  txt <- paste0("R = ", r)
+  cex.cor <- 0.8/strwidth(txt)
+  text(0.5, 0.5, txt, cex = cex.cor )
+}
+
+pairs(RETPLASMA~RETDIET+RETPLASMA+BETADIET+BETAPLASMA+QUETELET+FAT+CALORIES+FIBER+ALCOHOL+CHOLESTEROL+FIBER+ALCOHOL+CHOLESTEROL, data=plas, lower.panel = panel.cor)
+
+pairs(~RETPLASMA+BETAPLASMA+RETDIET+BETADIET+QUETELET+FAT+CALORIES+CHOLESTEROL+FIBER+ALCOHOL, data=plas, lower.panel = panel.cor,main='Correlation Matrix')
+
+names(plas)
+
+cor(plas[sapply(plas, is.numeric)])
+```
+
+```{r factorbox}
+#RETPLAS
+par(mfrow=c(1,3))
+boxplot(plas$RETPLASMA~plas$SEX,main='SEX:  box plot by level',
+xlab='SEX',ylab='RETPLASMA',col=rainbow(5))
+
+boxplot(plas$RETPLASMA~plas$SMOKSTAT,main='SMOKSTAT: box plot by level',
+xlab='SMOKSTAT',ylab='RETPLASMA',col=rainbow(5))
+
+boxplot(plas$RETPLASMA~plas$VITUSE,main='VITUSE: box plot by level',
+xlab='VITUSE',ylab='RETPLASMA',col=rainbow(5))
+
+#BETAPLAS
+boxplot(plas$BETAPLASMA~plas$SEX,main='SEX:  box plot by level',
+xlab='SEX',ylab='BETAPLASMA',col=rainbow(5))
+
+boxplot(plas$BETAPLASMA~plas$SMOKSTAT,main='SMOKSTAT: box plot by level',
+xlab='SMOKSTAT',ylab='BETAPLASMA',col=rainbow(5))
+
+boxplot(plas$BETAPLASMA~plas$VITUSE,main='VITUSE: box plot by level',
+xlab='VITUSE',ylab='BETAPLASMA',col=rainbow(5))
+
+#Nothing suss here. All look about even and no clear distribution. Lets plot against other quals below
+plas=plas[-c(62),] #62 gross outlier
+
+```
+
+
+
+
+
+```{r transret}
+
+#Transformations on response: Retenol
+fit1 = lm(RETPLASMA~.,data=plas)
+summary(fit1)
+#plot(fit1)
+library(MASS)
+boxcox(fit1) #Response trans needed
+
+
+#log(RETPLASMA) #log is BEST
+par(mfrow=c(1,3))
+
+hist(log(plas$RETPLASMA), col=rainbow(10),main='log(RETPLASMA) Histogram',xlab = "log(RETPLASMA)")
+
+#sqrt(RETPLASMA)
+
+hist(sqrt(plas$RETPLASMA), col=rainbow(10),main='sqrt(RETPLASMA) Histogram',xlab = "sqrt(RETPLASMA)")
+
+#1/(RETPLASMA)
+
+hist(1/(plas$RETPLASMA), col=rainbow(10),main='1/(RETPLASMA) Histogram',xlab = "1/(RETPLASMA)")
+
+# log(RETPLASMA) appears the most normal so we will modify
+plasrt=plas  #from now on plasrt is the transformed for response retplasma. This is done to avoid confusion when fitting the model on betaplasma
+
+plasrt$RETPLASMA = log((plasrt$RETPLASMA)) #plas has now been transformed, the var RETPLASMA is log(RETPLASMA)
+#data = cbind(RETPLASMA, data)
+
+
+
+
+
+
+hist(log(plas$BETAPLASMA), col=rainbow(10),main='log(BETAPLASMA) Histogram',xlab = "log(BETAPLASMA)")
+
+#sqrt(BETAPLASMA)
+
+hist(sqrt(plas$BETAPLASMA), col=rainbow(10),main='sqrt(BETAPLASMA) Histogram',xlab = "sqrt(BETAPLASMA)")
+
+#1/(BETAPLASMA)
+
+hist(1/(plas$BETAPLASMA), col=rainbow(10),main='1/(BETAPLASMA) Histogram',xlab = "1/(BETAPLASMA)")
+```
+
+
+```{r }
+
+names(plas)
+pairs(~RETDIET+RETPLASMA+BETADIET+BETAPLASMA+AGE+QUETELET+CALORIES+FAT+FIBER+ALCOHOL+CHOLESTEROL,data=plasrt, lower.panel = panel.cor)
+
+pairs(~sqrt(BETAPLASMA)+AGE+QUETELET+CALORIES+FAT+FIBER+ALCOHOL+CHOLESTEROL,data=plasrt, lower.panel = panel.cor)
+
+#plot((BETAPLASMA), FAT)
+
+
+
+cor(plasrt[sapply(plasrt, is.numeric)])
+
+
+```
+
+
+
+
+
+```{r}
+#Retplasma train and validation sets
+#RETPLASMA
+n = nrow(plasrt)/2
+n
+ind = sample(1:(2*n), n, replace=FALSE)
+train = plasrt[ind, ] #training set
+valid = plasrt[-ind, ] #validation/test set
+fit.65= lm(RETPLASMA~AGE+ALCOHOL+BETAPLASMA, data=train)
+summary(fit.65)$coef[,1]
+```
+
+
+
+
+
+
+```{r}
+none_mod = lm(RETPLASMA~1, data=train) ##model with only intercept
+full_mod = lm(RETPLASMA~., data=train) ##first order model with 9 predictors 
+library(MASS)
+#summary(full_mod)
+#forward selection based on AIC: 
+stepAIC(none_mod, scope=list(upper=full_mod, lower = ~1), direction="forward", k=2, trace = FALSE)
+
+#backward elimination based on AIC
+stepAIC(full_mod, scope=list(upper=full_mod, lower = ~1), direction="backward", k=2, trace = FALSE)
+
+#forward stepwise based on AIC
+stepAIC(none_mod, scope=list(upper=full_mod, lower = ~1), direction="both", k=2, trace = FALSE)
+
+#backward stepwise based on AIC
+stepAIC(full_mod, scope=list(upper=full_mod, lower = ~1), direction="both", k=2, trace = FALSE)
+```
+
+```{r bicselectionret1st}
+#selection based on BIC: set option "k=log(n)"
+stepAIC(none_mod, scope=list(upper=full_mod, lower = ~1), direction="forward", k=log(n), trace = FALSE)
+stepAIC(full_mod, scope=list(upper=full_mod, lower = ~1), direction="backward", k=log(n), trace = FALSE)
+stepAIC(none_mod, scope=list(upper=full_mod, lower = ~1), direction="both", k=log(n), trace = FALSE)
+stepAIC(full_mod, scope=list(upper=full_mod, lower = ~1), direction="both", k=log(n), trace = FALSE)
+```
+Ultimately we get the same model for all forms of selection regardless of AIC or BIC criteria. That is a first order model with AGE and AlCOHOL is selected. 
+
+##Validate 1st order selected
+
+```{r}
+#AIC and BIC selections output many duplicates, these are the two produced unique models.
+ar_1t = lm(RETPLASMA~AGE+ALCOHOL, data = train)
+ar_1v = lm(RETPLASMA~AGE+ALCOHOL, data = valid)
+br_1v = lm(RETPLASMA~AGE + ALCOHOL+ BETAPLASMA, data = valid)
+
+br_1t = lm(RETPLASMA~AGE + ALCOHOL+ BETAPLASMA, data = train)
+
+#compare the estimates and standard error between the two sets
+ar_1_sum = cbind(coef(summary(ar_1t))[,1], coef(summary(ar_1v))[,1],
+coef(summary(ar_1t))[,2], coef(summary(ar_1v))[,2])
+colnames(ar_1_sum) = c("ar_1:Train Est","Valid Est","Train s.e.","Valid s.e.")
+
+br_1_sum = cbind(coef(summary(br_1t))[,1], coef(summary(br_1v))[,1],
+coef(summary(br_1t))[,2], coef(summary(br_1v))[,2])
+colnames(br_1_sum) = c("br_1:Train Est","Valid Est","Train s.e.","Valid s.e.")
+```
+
+```{r}
+ar_1_sum 
+br_1_sum 
+# Both models have close estimates, it is clear that model br including betaplasma has greater standard error overall.
+```
+
+```{r}
+sse_ar_1t = sum(ar_1t$residuals^2)
+sse_ar_1v = sum(ar_1v$residuals^2)
+Radj_ar_1t = summary(ar_1t)$adj.r.squared
+Radj_ar_1v = summary(ar_1v)$adj.r.squared
+train_ar_1t_sum = c(sse_ar_1t,Radj_ar_1t)
+valid_ar_1v_sum = c(sse_ar_1v,Radj_ar_1v)
+criteria_ar_1 = rbind(train_ar_1t_sum,valid_ar_1v_sum)
+colnames(criteria_ar_1) = c("ar_1SSE","R2_adj")
+criteria_ar_1
+
+
+sse_br_1t = sum(br_1t$residuals^2)
+sse_br_1v = sum(br_1v$residuals^2)
+Radj_br_1t = summary(br_1t)$adj.r.squared
+Radj_br_1v = summary(br_1v)$adj.r.squared
+train_br_1t_sum = c(sse_br_1t,Radj_br_1t)
+valid_br_1v_sum = c(sse_br_1v,Radj_br_1v)
+criteria_br_1 = rbind(train_br_1t_sum,valid_br_1v_sum)
+colnames(criteria_br_1) = c("br_1SSE","R2_adj")
+criteria_br_1
+
+#Model ar has closer R adjusted values while model br shows a larger difference between its R adjusted values. Model ar appears favorable here. 
+```
+
+
+```{r}
+#Get MSPE_v from new data
+newdata = valid[, -14] #remove predictor 
+n=dim(valid)[1]
+n
+RETPLAS.hat_ar = predict(ar_1t, newdata)
+
+MSPE_ar_1 = mean((valid$RETPLAS - RETPLAS.hat_ar)^2)
+MSPE_ar_1
+
+sse_ar_1t/n
+
+RETPLAS.hat_br = predict(br_1t, newdata)
+
+MSPE_br_1 = mean((valid$RETPLAS - RETPLAS.hat_br)^2)
+MSPE_br_1
+
+sse_br_1t/n
+#it is difficult to determine which model preveils in this case. Both do not have severe overfitting. An anova fit ultimatly tells us that the betaplasma in model br is insignificant, therefore, model ar is selected as the best model here.
+
+anova(ar_1t)
+anova(br_1t)
+
+```
+Best first order model for prediction Retplasma is one which Age and Alcohol use. 
+```{r}
+final_ret_1st=lm(formula = RETPLASMA ~ AGE + ALCOHOL, data = plasrt)
+
+par(mfrow=c(2,2))
+
+
+summary(final_ret_1st)
+anova(final_ret_1st)
+
+#MSE
+anova(final_ret_1st)['Residuals',3]
+```
+```{r}
+
+e=final_ret_1st$residuals ##ordinary residuals 
+h=influence(final_ret_1st)$hat 
+de=e/(1-h) ##deleted residuals 
+plot(e,de, xlab="residuals", ylab="deleted residuals")
+abline(0,1)
+summary(h) #81 stands out
+n=dim(plasrt)[1]
+p=length(final_ret_1st$coefficients)
+
+stu.res.del = studres(final_ret_1st)
+head(sort(abs(stu.res.del), decreasing=TRUE))
+qt(1-.1/(2*n), n-p-1) #Bonferroni's Threshold (alpha=0.1, n=sample size, p=3) = 3.64381 
+#point s again identified 81
+
+
+
+h = influence(final_ret_1st)$hat #leverage 
+
+sort(h[which(h>2*p/n)], decreasing = TRUE)
+res = final_ret_1st$residuals
+mse = anova(final_ret_1st)["Residuals", 3]
+cook.d = res^2*h/(p*mse*(1-h)^2)
+
+sort(cook.d[which(cook.d>4/(n-p))], decreasing = TRUE)
+#81 is both influential and an outlier, it is subject to removal
+
+
+
+```
+```{r}
+
+best_r_out=lm(formula = RETPLASMA ~ AGE  + ALCOHOL, data = plasrt, subset=setdiff(rownames(plasrt), "81")) ##exclude case 103
+#rbind(fit$coefficients,fit.75$coefficients)##compare fitted regression coefficients
+plot(final_ret_1st$fitted.value, predict(best_r_out, plasrt[,c("AGE","ALCOHOL")]), xlab="fitted values using all cases", ylab="fitted values without using case 81") ## compare fitted values
+abline(0,1)
+
+par(mfrow=c(2,2))
+summary(final_ret_1st)
+summary(best_r_out)
+plot(best_r_out)
+plot(final_ret_1st)
+
+```
+```{r}
+#BEST Ret 1st order
+
+par(mfrow=c(2,2))
+plot(best_r_out)
+
+summary(best_r_out)
+anova(best_r_out)
+
+#MSE
+anova(best_r_out)['Residuals',3]
+```
+
+
+
+
+
+
+
+
+Best Interaction Model Retplasma 
+```{r}
+int_mod = lm(RETPLASMA~(.)^2, data=train)
+
+#forward selection based on AIC: 
+stepAIC(none_mod, scope=list(upper=int_mod, lower = ~1), direction="forward", k=2, trace = FALSE)
+
+#backward elimination based on AIC
+stepAIC(int_mod, scope=list(upper=int_mod, lower = ~1), direction="backward", k=2, trace = FALSE)
+
+#forward stepwise based on AIC
+stepAIC(none_mod, scope=list(upper=int_mod, lower = ~1), direction="both", k=2, trace = FALSE)
+
+#backward stepwise based on AIC
+stepAIC(int_mod, scope=list(upper=int_mod, lower = ~1), direction="both", k=2, trace = FALSE)
+
+```
+Forward models give the same model as without interactions that is 1st order alcohol and age. Backwards type models give a very large, likely overfitted, model. Lets try with BIC because it is bias for smaller models.
+```{r }
+#selection based on BIC: set option "k=log(n)"
+stepAIC(none_mod, scope=list(upper=int_mod, lower = ~1), direction="forward", k=log(n), trace = FALSE)
+stepAIC(int_mod, scope=list(upper=int_mod, lower = ~1), direction="backward", k=log(n), trace = FALSE)
+stepAIC(none_mod, scope=list(upper=int_mod, lower = ~1), direction="both", k=log(n), trace = FALSE)
+stepAIC(int_mod, scope=list(upper=int_mod, lower = ~1), direction="both", k=log(n), trace = FALSE)
+```
+
+#We recieve for BIC criteria the same forward type models. However our backwards models are smaller here, so I will use them for validation as I believe the larger model from AIC will be overfitted as it contains too many predictors for our dataset. I will be comparing both interactions models provided by BIC backwards selection and stepwise
+
+
+#Validate interaction on RETPLASMA
+
+```{r}
+ar_1it = lm(formula = RETPLASMA ~ AGE + CALORIES + FAT + FIBER + ALCOHOL + 
+    CHOLESTEROL + AGE:CALORIES + AGE:CHOLESTEROL + FAT:FIBER, 
+    data = train)
+
+ar_1iv = lm(formula = RETPLASMA ~ AGE + CALORIES + FAT + FIBER + ALCOHOL + 
+    CHOLESTEROL + AGE:CALORIES + AGE:CHOLESTEROL + FAT:FIBER, 
+    data = valid)
+
+br_1it = lm(formula = RETPLASMA~ AGE + FAT + FIBER + FAT:FIBER,  data = train)
+
+br_1iv =lm(formula = RETPLASMA ~  AGE + FAT + FIBER + FAT:FIBER,  data = valid)
+
+cr_1it=lm(formula = RETPLASMA ~ AGE + ALCOHOL + FAT + BETAPLASMA + FAT:BETAPLASMA, 
+    data = train)
+
+cr_1iv=lm(formula = RETPLASMA ~ AGE + ALCOHOL + FAT + BETAPLASMA + FAT:BETAPLASMA, 
+    data = valid)
+
+
+
+dr_1it=lm(formula = RETPLASMA ~ AGE + SEX + SMOKSTAT + QUETELET + VITUSE + 
+    CALORIES + FAT + FIBER + ALCOHOL + CHOLESTEROL + BETADIET + 
+    RETDIET + BETAPLASMA + AGE:QUETELET + AGE:FAT + AGE:FIBER + 
+    AGE:RETDIET + SEX:QUETELET + SEX:VITUSE + SEX:CALORIES + 
+    SEX:FAT + SEX:FIBER + SEX:ALCOHOL + SEX:CHOLESTEROL + SEX:BETADIET + 
+    SMOKSTAT:QUETELET + SMOKSTAT:VITUSE + SMOKSTAT:CALORIES + 
+    SMOKSTAT:FAT + SMOKSTAT:FIBER + SMOKSTAT:ALCOHOL + SMOKSTAT:CHOLESTEROL + 
+    SMOKSTAT:BETADIET + SMOKSTAT:RETDIET + SMOKSTAT:BETAPLASMA + 
+    QUETELET:VITUSE + QUETELET:CALORIES + QUETELET:FIBER + QUETELET:ALCOHOL + 
+    QUETELET:CHOLESTEROL + VITUSE:CALORIES + VITUSE:FIBER + VITUSE:ALCOHOL + 
+    VITUSE:CHOLESTEROL + VITUSE:BETADIET + CALORIES:FAT + CALORIES:FIBER + 
+    CALORIES:CHOLESTEROL + CALORIES:BETADIET + CALORIES:BETAPLASMA + 
+    FAT:FIBER + FAT:BETAPLASMA + FIBER:ALCOHOL + FIBER:CHOLESTEROL + 
+    FIBER:BETADIET + FIBER:RETDIET + ALCOHOL:CHOLESTEROL + ALCOHOL:RETDIET + 
+    CHOLESTEROL:BETADIET + BETADIET:RETDIET + BETADIET:BETAPLASMA, 
+    data = train)
+
+dr_1iv=lm(formula = RETPLASMA ~ AGE + SEX + SMOKSTAT + QUETELET + VITUSE + 
+    CALORIES + FAT + FIBER + ALCOHOL + CHOLESTEROL + BETADIET + 
+    RETDIET + BETAPLASMA + AGE:QUETELET + AGE:FAT + AGE:FIBER + 
+    AGE:RETDIET + SEX:QUETELET + SEX:VITUSE + SEX:CALORIES + 
+    SEX:FAT + SEX:FIBER + SEX:ALCOHOL + SEX:CHOLESTEROL + SEX:BETADIET + 
+    SMOKSTAT:QUETELET + SMOKSTAT:VITUSE + SMOKSTAT:CALORIES + 
+    SMOKSTAT:FAT + SMOKSTAT:FIBER + SMOKSTAT:ALCOHOL + SMOKSTAT:CHOLESTEROL + 
+    SMOKSTAT:BETADIET + SMOKSTAT:RETDIET + SMOKSTAT:BETAPLASMA + 
+    QUETELET:VITUSE + QUETELET:CALORIES + QUETELET:FIBER + QUETELET:ALCOHOL + 
+    QUETELET:CHOLESTEROL + VITUSE:CALORIES + VITUSE:FIBER + VITUSE:ALCOHOL + 
+    VITUSE:CHOLESTEROL + VITUSE:BETADIET + CALORIES:FAT + CALORIES:FIBER + 
+    CALORIES:CHOLESTEROL + CALORIES:BETADIET + CALORIES:BETAPLASMA + 
+    FAT:FIBER + FAT:BETAPLASMA + FIBER:ALCOHOL + FIBER:CHOLESTEROL + 
+    FIBER:BETADIET + FIBER:RETDIET + ALCOHOL:CHOLESTEROL + ALCOHOL:RETDIET + 
+    CHOLESTEROL:BETADIET + BETADIET:RETDIET + BETADIET:BETAPLASMA, 
+    data = valid)
+
+
+
+ar_1i_sum = cbind(coef(summary(ar_1it))[,1], coef(summary(ar_1iv))[,1],
+coef(summary(ar_1it))[,2], coef(summary(ar_1iv))[,2])
+colnames(ar_1i_sum) = c("ar_1i:Train Est","Valid Est","Train s.e.","Valid s.e.")
+
+br_1i_sum = cbind(coef(summary(br_1it))[,1], coef(summary(br_1iv))[,1],
+coef(summary(br_1it))[,2], coef(summary(br_1iv))[,2])
+colnames(br_1i_sum) = c("br_1i:Train Est","Valid Est","Train s.e.","Valid s.e.")
+
+cr_1i_sum = cbind(coef(summary(cr_1it))[,1], coef(summary(cr_1iv))[,1],
+coef(summary(cr_1it))[,2], coef(summary(cr_1iv))[,2])
+colnames(cr_1i_sum) = c("cr_1i:Train Est","Valid Est","Train s.e.","Valid s.e.")
+
+dr_1i_sum = cbind(coef(summary(dr_1it))[,1], coef(summary(dr_1iv))[,1],
+coef(summary(dr_1it))[,2], coef(summary(dr_1iv))[,2])
+colnames(dr_1i_sum) = c("dr_1i:Train Est","Valid Est","Train s.e.","Valid s.e.")
+```
+
+```{r}
+ar_1i_sum
+br_1i_sum
+cr_1i_sum
+dr_1i_sum
+```
+
+```{r}
+sse_ar_1it = sum(ar_1it$residuals^2)
+sse_ar_1iv = sum(ar_1iv$residuals^2)
+Radj_ar_1it = summary(ar_1it)$adj.r.squared
+Radj_ar_1iv = summary(ar_1iv)$adj.r.squared
+train_ar_1it_sum = c(sse_ar_1it,Radj_ar_1it)
+valid_ar_1iv_sum = c(sse_ar_1iv,Radj_ar_1iv)
+criteria_ar_1i = rbind(train_ar_1it_sum,valid_ar_1iv_sum)
+colnames(criteria_ar_1i) = c("ar_1iSSE","R2_adj")
+criteria_ar_1i
+
+sse_br_1it = sum(br_1it$residuals^2)
+sse_br_1iv = sum(br_1iv$residuals^2)
+Radj_br_1it = summary(br_1it)$adj.r.squared
+Radj_br_1iv = summary(br_1iv)$adj.r.squared
+train_br_1it_sum = c(sse_br_1it,Radj_br_1it)
+valid_br_1iv_sum = c(sse_br_1iv,Radj_br_1iv)
+criteria_br_1i = rbind(train_br_1it_sum,valid_br_1iv_sum)
+colnames(criteria_br_1i) = c("br_1iSSE","R2_adj")
+criteria_br_1i
+
+sse_cr_1it = sum(cr_1it$residuals^2)
+sse_cr_1iv = sum(cr_1iv$residuals^2)
+Radj_cr_1it = summary(cr_1it)$adj.r.squared
+Radj_cr_1iv = summary(cr_1iv)$adj.r.squared
+train_cr_1it_sum = c(sse_cr_1it,Radj_cr_1it)
+valid_cr_1iv_sum = c(sse_cr_1iv,Radj_cr_1iv)
+criteria_cr_1i = rbind(train_cr_1it_sum,valid_cr_1iv_sum)
+colnames(criteria_cr_1i) = c("cr_1iSSE","R2_adj")
+criteria_cr_1i
+
+sse_dr_1it = sum(dr_1it$residuals^2)
+sse_dr_1iv = sum(dr_1iv$residuals^2)
+Radj_dr_1it = summary(dr_1it)$adj.r.squared
+Radj_dr_1iv = summary(dr_1iv)$adj.r.squared
+train_dr_1it_sum = c(sse_dr_1it,Radj_dr_1it)
+valid_dr_1iv_sum = c(sse_dr_1iv,Radj_dr_1iv)
+criteria_dr_1i = rbind(train_dr_1it_sum,valid_dr_1iv_sum)
+colnames(criteria_dr_1i) = c("dr_1iSSE","R2_adj")
+criteria_dr_1i
+```
+
+
+```{r}
+
+#Get MSPE_v from new data
+newdata = valid[, -14] #remove predictor 
+newdata
+dim(newdata)
+n=dim(valid)[1]
+
+RETPLAS.hat_ar1i = predict(ar_1it, newdata)
+
+MSPE_ar_1i = mean((valid$RETPLAS - RETPLAS.hat_ar1i)^2)
+MSPE_ar_1i
+
+sse_ar_1it/n
+
+
+
+RETPLAS.hat_br1i = predict(br_1it, newdata)
+
+MSPE_br_1i = mean((valid$RETPLAS - RETPLAS.hat_br1i)^2)
+MSPE_br_1i
+
+sse_br_1it/n
+
+
+RETPLAS.hat_cr1i = predict(cr_1it, newdata)
+
+MSPE_cr_1i = mean((valid$RETPLAS - RETPLAS.hat_cr1i)^2)
+MSPE_cr_1i
+
+sse_cr_1it/n
+
+
+
+RETPLAS.hat_dr1i = predict(dr_1it, newdata)
+
+MSPE_dr_1i = mean((valid$RETPLAS - RETPLAS.hat_dr1i)^2)
+MSPE_dr_1i
+
+sse_dr_1it/n
+```
+
+
+```{r bestfirstorderretinteraction }
+best_r_int = lm(formula = RETPLASMA ~ AGE + CALORIES + FAT + FIBER + ALCOHOL + 
+    CHOLESTEROL + AGE:CALORIES + AGE:CHOLESTEROL + FAT:FIBER,  data = plasrt)
+summary(best_r_int)
+
+par(mfrow=c(2,2))
+plot(best_r_int)
+anova(best_r_int)
+```
+
+```{r}
+#dropped terms
+par(mfrow=c(2,2))
+
+best_r_int =lm(formula = RETPLASMA ~ AGE + CALORIES + FAT + FIBER + ALCOHOL  +  FAT:FIBER,  data = plasrt)
+summary(best_r_int)
+anova(best_r_int)
+plot(best_r_int)
+```
+
+
+
+```{r}
+#best_b_int
+
+e=best_r_int$residuals ##ordinary residuals 
+h=influence(best_r_int)$hat ##diagonals of the hat matrix: a.k.a. leverage values 
+de=e/(1-h) ##deleted residuals 
+plot(e,de, xlab="residuals", ylab="deleted residuals")
+abline(0,1)
+summary(h) #unlikely we will be able to delete any residuals  here
+n=dim(plasrt)[1]
+p=length(best_r_int$coefficients)
+
+stu.res.del = studres(best_r_int)
+head(sort(abs(stu.res.del), decreasing=TRUE))
+qt(1-.1/(2*n), n-3-1) #Bonferroni's Threshold (alpha=0.1, n=sample size, p=3) #81, but it is not influential
+
+
+
+h = influence(best_r_int)$hat
+
+sort(h[which(h>2*p/n)], decreasing = TRUE)
+res = best_r_int$residuals
+mse = anova(best_r_int)["Residuals", 3]
+cook.d = res^2*h/(p*mse*(1-h)^2)
+cook.d
+sort(cook.d[which(cook.d>4/(n-p))], decreasing = TRUE)
+#145
+
+
+```
+
+```{r }
+#lm(formula = RETPLASMA~ AGE + FAT + FIBER + FAT:FIBER,  data = train)
+fit.145=lm(formula = RETPLASMA~ AGE + FAT + FIBER + FAT:FIBER, data = plasrt, subset=setdiff(rownames(plasrt), c('152'))) ##exclude case 103
+#rbind(best_b_int$coefficients,fit.145$coefficients)##compare fitted regression coefficients
+#plot(best.1st$fitted.value, predict(fit.145, plasrt[,c("AGE","ALCOHOL","SEX","QUETELET","FIBER","CHOLESTEROL","BETADIET")]), xlab="fitted values using all cases", ylab="fitted values without using case 145") ## compare fitted values#
+#abline(0,1)
+par(mfrow=c(2,2))
+
+summary(best_r_int)
+summary(fit.145)
+plot(fit.145) #best we will get here tbh. 
+#there is difference
+```
+
+
+#Betaplasma
+
+
+```{r}
+fit.b = lm(BETAPLASMA~., data=plas)
+plasbt=plas
+#plasbt$BETAPLASMA
+#plasbt$BETAPLASMA[256]=1 #for transformation, cite paper that shows this is a method to use to not loose data
+#plasbt$BETAPLASMA
+par(mfrow=c(2,2))
+
+summary(fit.b)
+plot(fit.b)
+library(MASS)
+plasbt=plas
+plasbt[sapply(plasbt, is.numeric)]= plasbt[sapply(plasbt, is.numeric)]+1 #add one to all numeric cases
+plasbt
+fit.bt = lm(BETAPLASMA~., data=(plasbt))
+par(mfrow=c(1,2))
+boxcox(fit.bt)
+library(MASS)
+boxcox(fit1) #Response trans needed
+plasbt$BETAPLASMA=log(plasbt$BETAPLASMA)
+```
+
+
+
+```{r}
+
+
+#Retplasma train_b and valid_bation sets
+#RETPLASMA
+n = nrow(plasbt)/2
+n
+ind = sample(1:(2*n), n, replace=FALSE)
+train_b = plasbt[ind, ] #train_bing set
+valid_b = plasbt[-ind, ] #valid_bation/test set
+
+```
+
+```{r}
+none_mod_b = lm(BETAPLASMA~1, data=train_b) ##model with only intercept
+full_mod_b = lm(BETAPLASMA~., data=train_b) ##first order model with 9 predictors 
+library(MASS)
+
+#forward selection based on AIC: 
+stepAIC(none_mod_b, scope=list(upper=full_mod_b, lower = ~1), direction="forward", k=2, trace = FALSE)
+
+#backward elimination based on AIC
+stepAIC(full_mod_b, scope=list(upper=full_mod_b, lower = ~1), direction="backward", k=2, trace = FALSE)
+
+#forward stepwise based on AIC
+stepAIC(none_mod_b, scope=list(upper=full_mod_b, lower = ~1), direction="both", k=2, trace = FALSE)
+
+#backward stepwise based on AIC
+stepAIC(full_mod_b, scope=list(upper=full_mod_b, lower = ~1), direction="both", k=2, trace = FALSE)
+```
+
+```{r}
+#selection based on BIC: set option "k=log(n)"
+stepAIC(none_mod_b, scope=list(upper=full_mod_b, lower = ~1), direction="forward", k=log(n), trace = FALSE)
+stepAIC(full_mod_b, scope=list(upper=full_mod_b, lower = ~1), direction="backward", k=log(n), trace = FALSE)
+stepAIC(none_mod_b, scope=list(upper=full_mod_b, lower = ~1), direction="both", k=log(n), trace = FALSE)
+stepAIC(full_mod_b, scope=list(upper=full_mod_b, lower = ~1), direction="both", k=log(n), trace = FALSE)
+```
+BIC selection in all cases is more conservative prediction for the first model is on QUETELET + FIBER + CHOLESTEROL + RETPLASMA, while the AIC predicted models (while the order differes for some its the same model here), includes vituse, betadiet, and retplasma as predictors aka AGE + QUETELET + VITUSE + FIBER + CHOLESTEROL + 
+    BETADIET + RETPLASMA 
+
+##Validate 1st order selected
+
+```{r}
+#notation: modela betaplasma 1st order training  ab_1t
+ab_1t = lm(BETAPLASMA~AGE + SEX + QUETELET + VITUSE + FIBER + 
+    CHOLESTEROL , data = train_b)
+
+ab_1v = lm(BETAPLASMA~AGE + SEX + QUETELET + VITUSE + FIBER + 
+    CHOLESTEROL, data = valid_b)
+
+bb_1t = lm(BETAPLASMA~QUETELET + FIBER + CHOLESTEROL, data = train_b)
+bb_1v = lm(BETAPLASMA~QUETELET + FIBER + CHOLESTEROL, data = valid_b)
+
+
+cb_1t = lm(BETAPLASMA~ AGE + SEX + QUETELET + FIBER, data = train_b)
+cb_1v = lm(BETAPLASMA~ AGE + SEX + QUETELET + FIBER, data = valid_b)
+
+ab_1sum = cbind(coef(summary(ab_1t))[,1], coef(summary(ab_1v))[,1],
+coef(summary(ab_1t))[,2], coef(summary(ab_1v))[,2])
+colnames(ab_1sum) = c("ab_1:Train Est","Valid Est","Train s.e.","Valid s.e.")
+
+bb_1sum = cbind(coef(summary(bb_1t))[,1], coef(summary(bb_1v))[,1],
+coef(summary(bb_1t))[,2], coef(summary(bb_1v))[,2])
+colnames(bb_1sum) = c("bb_1:Train Est","Valid Est","Train s.e.","Valid s.e.")
+
+cb_1sum = cbind(coef(summary(cb_1t))[,1], coef(summary(cb_1v))[,1],
+coef(summary(cb_1t))[,2], coef(summary(cb_1v))[,2])
+colnames(cb_1sum) = c("cb_1:Train Est","Valid Est","Train s.e.","Valid s.e.")
+```
+
+```{r}
+ab_1sum
+bb_1sum
+cb_1sum
+```
+```{r}
+sse_ab_1t = sum(ab_1t$residuals^2)
+sse_ab_1v = sum(ab_1v$residuals^2)
+Radj_ab_1t = summary(ab_1t)$adj.r.squared
+Radj_ab_1v = summary(ab_1v)$adj.r.squared
+train_ab_1t_sum = c(sse_ab_1t,Radj_ab_1t)
+valid_ab_1v_sum = c(sse_ab_1v,Radj_ab_1v)
+criteria_ab_1 = rbind(train_ab_1t_sum,valid_ab_1v_sum)
+colnames(criteria_ab_1) = c("ab_1SSE","R2_adj")
+criteria_ab_1
+
+sse_bb_1t = sum(bb_1t$residuals^2)
+sse_bb_1v = sum(bb_1v$residuals^2)
+Radj_bb_1t = summary(bb_1t)$adj.r.squared
+Radj_bb_1v = summary(bb_1v)$adj.r.squared
+train_bb_1t_sum = c(sse_bb_1t,Radj_bb_1t)
+valid_bb_1v_sum = c(sse_bb_1v,Radj_bb_1v)
+criteria_bb_1 = rbind(train_bb_1t_sum,valid_bb_1v_sum)
+colnames(criteria_bb_1) = c("bb_1SSE","R2_adj")
+criteria_bb_1
+
+sse_cb_1t = sum(cb_1t$residuals^2)
+sse_cb_1v = sum(cb_1v$residuals^2)
+Radj_cb_1t = summary(cb_1t)$adj.r.squared
+Radj_cb_1v = summary(cb_1v)$adj.r.squared
+train_cb_1t_sum = c(sse_cb_1t,Radj_cb_1t)
+valid_cb_1v_sum = c(sse_cb_1v,Radj_cb_1v)
+criteria_cb_1 = rbind(train_cb_1t_sum,valid_cb_1v_sum)
+colnames(criteria_cb_1) = c("cb_1SSE","R2_adj")
+criteria_cb_1
+
+```
+
+
+```{r}
+
+#Get MSPE_v from new data
+
+newdata = valid_b[, -13] #remove predictor 
+
+dim(newdata)
+n=dim(valid_b)[1]
+BETAPLAS.hat_ab = predict(ab_1t, newdata)
+
+MSPE_ab_1 = mean((valid_b$BETAPLAS - BETAPLAS.hat_ab)^2)
+MSPE_ab_1
+
+sse_ab_1t/n# overfit
+
+BETAPLAS.hat_bb = predict(bb_1t, newdata)
+
+MSPE_bb_1 = mean((valid_b$BETAPLAS - BETAPLAS.hat_bb)^2)
+MSPE_bb_1
+
+sse_bb_1t/n
+
+
+
+BETAPLAS.hat_cb = predict(cb_1t, newdata)
+
+MSPE_cb_1 = mean((valid_b$BETAPLAS - BETAPLAS.hat_cb)^2)
+MSPE_cb_1
+
+sse_cb_1t/n
+
+#The seoncd model regins
+```
+Best first order model for prediction Betaplasma is one which includes QUETELET + FIBER + CHOLESTEROL + RETPLASMA
+```{r}
+par(mfrow=c(2,2))
+
+best.bb_1=lm(BETAPLASMA~AGE + factor(SEX) + QUETELET + factor(VITUSE) + FIBER + 
+    CHOLESTEROL, data = plasbt)
+plot(best.bb_1)
+plot(best.bb_1,which=4)
+
+summary(best.bb_1)
+anova(best.bb_1)
+
+```
+```{r eval=FALSE}
+best.bb_1
+
+e=best.bb_1$residuals ##ordinary residuals 
+h=influence(best.bb_1)$hat ##diagonals of the hat matrix: a.k.a. leverage values 
+de=e/(1-h) ##deleted residuals 
+plot(e,de, xlab="residuals", ylab="deleted residuals")
+abline(0,1)
+summary(h) 
+n=dim(plasbt)[1]
+p=length(best.bb_1$coefficients)
+
+stu.res.del = studres(best.bb_1)
+head(sort(abs(stu.res.del), decreasing=TRUE))#these!
+qt(1-.1/(2*n), n-3-1) #Bonferroni's Threshold (alpha=0.1, n=sample size, p=3) #81
+
+
+
+h = influence(best.bb_1)$hat
+
+sort(h[which(h>2*p/n)], decreasing = TRUE)
+res = best.bb_1$residuals
+mse = anova(best.bb_1)["Residuals", 3]
+cook.d = res^2*h/(p*mse*(1-h)^2)
+cook.d
+sort(cook.d[which(cook.d>4/(n-p))], decreasing = TRUE)
+#quite a few here. Lets take off the first few indentifed by bof criertia, there are some over laps such as 219 and 20
+
+
+```
+```{r }
+
+fit.out=lm(formula = BETAPLASMA ~ AGE + factor(SEX) + QUETELET + factor(VITUSE) + FIBER + 
+    CHOLESTEROL, data = plasbt, subset=setdiff(rownames(plasbt),c('257'))) 
+##exclude case 103
+#rbind(fit$coefficients,fit.81$coefficients)##compare fitted regression coefficients
+#plot(best.1st$fitted.value, predict(fit.81, plasbt[,c("QUETELET","FIBER","CHOLESTEROL","RETPLASMA")]), xlab="fitted values using all cases", ylab="fitted values without using case 81") ## compare fitted values
+#abline(0,1)
+summary(best.bb_1)
+par(mfrow=c(2,2))
+
+anova(fit.out)
+summary(fit.out)
+plot(fit.out)
+plot(best.bb_1)
+#there is no notable difference so no points will be dropped in this model.
+#plot(best.1st$fitted.values,plasbt$BETAPLAS)
+#abline(lm(plasbt$BETAPLAS~best.1st$fitted.values, plasbt))
+
+
+```
+
+
+
+
+
+
+
+Best Interaction Model BETAPLASMA 
+```{r}
+int_mod_b = lm(BETAPLASMA~(.)^2, data=train_b)
+#forward selection based on AIC: 
+stepAIC(none_mod_b, scope=list(upper=int_mod_b, lower = ~1), direction="forward", k=2, trace = FALSE)
+
+#backward elimination based on AIC
+stepAIC(int_mod_b, scope=list(upper=int_mod_b, lower = ~1), direction="backward", k=2, trace = FALSE)
+
+#forward stepwise based on AIC
+stepAIC(none_mod_b, scope=list(upper=int_mod_b, lower = ~1), direction="both", k=2, trace = FALSE)
+
+#backward stepwise based on AIC
+stepAIC(int_mod_b, scope=list(upper=int_mod_b, lower = ~1), direction="both", k=2, trace = FALSE)
+
+```
+Forward models candidates: lm(formula = BETAPLASMA ~ QUETELET + CHOLESTEROL + FIBER + RETPLASMA + 
+    VITUSE + AGE + SEX + BETADIET + SMOKSTAT + CHOLESTEROL:RETPLASMA + 
+    VITUSE:SEX + SEX:BETADIET + VITUSE:BETADIET + BETADIET:SMOKSTAT + 
+    AGE:SMOKSTAT + CHOLESTEROL:SEX, data = train_b),
+    
+    lm(formula = BETAPLASMA ~ AGE + SEX + SMOKSTAT + QUETELET + VITUSE + 
+    CALORIES + FAT + FIBER + ALCOHOL + CHOLESTEROL + BETADIET + 
+    RETDIET + RETPLASMA + AGE:SEX + AGE:VITUSE + AGE:CALORIES + 
+    AGE:FAT + AGE:FIBER + AGE:CHOLESTEROL + SEX:SMOKSTAT + SEX:QUETELET + 
+    SEX:CALORIES + SEX:FIBER + SEX:RETDIET + SMOKSTAT:FAT + SMOKSTAT:ALCOHOL + 
+    SMOKSTAT:CHOLESTEROL + SMOKSTAT:BETADIET + SMOKSTAT:RETDIET + 
+    QUETELET:CHOLESTEROL + QUETELET:BETADIET + VITUSE:CALORIES + 
+    VITUSE:ALCOHOL + VITUSE:BETADIET + VITUSE:RETDIET + CALORIES:CHOLESTEROL + 
+    CALORIES:BETADIET + CALORIES:RETDIET + FAT:FIBER + FAT:CHOLESTEROL + 
+    FIBER:ALCOHOL + FIBER:BETADIET + FIBER:RETPLASMA + ALCOHOL:CHOLESTEROL + 
+    ALCOHOL:BETADIET + ALCOHOL:RETDIET + ALCOHOL:RETPLASMA + 
+    CHOLESTEROL:RETDIET + BETADIET:RETPLASMA + RETDIET:RETPLASMA, 
+    data = train_b)
+    
+    The second one is liekly very overfitted but we will see.
+    
+    
+```{r}
+#selection based on BIC: set option "k=log(n)"
+stepAIC(none_mod_b, scope=list(upper=int_mod_b, lower = ~1), direction="forward", k=log(n), trace = FALSE)
+stepAIC(int_mod_b, scope=list(upper=int_mod_b, lower = ~1), direction="backward", k=log(n), trace = FALSE)
+stepAIC(none_mod_b, scope=list(upper=int_mod_b, lower = ~1), direction="both", k=log(n), trace = FALSE)
+stepAIC(int_mod_b, scope=list(upper=int_mod_b, lower = ~1), direction="both", k=log(n), trace = FALSE)
+```
+#We recieve for BIC criteria the same forward type models. However our backwards models are smaller here, so I will use them for valid_bation as I believe the larger model from AIC will be overfitted as it contains too many predictors for our dataset. I will be comparing both interactions models provided by BIC backwards selection and stepwise.
+Caidates from BIC: 
+lm(formula = BETAPLASMA ~ AGE + SEX + QUETELET + CALORIES + FAT + 
+    ALCOHOL + CHOLESTEROL + RETDIET + AGE:CALORIES + AGE:FAT + 
+    SEX:RETDIET + ALCOHOL:RETDIET + CHOLESTEROL:RETDIET, data = train_b)
+    
+lm(formula = BETAPLASMA ~ QUETELET + CHOLESTEROL + FIBER + RETPLASMA + 
+    CHOLESTEROL:RETPLASMA, data = train_b)
+
+lm(formula = BETAPLASMA ~ AGE + SEX + SMOKSTAT + QUETELET + CALORIES + 
+    FAT + FIBER + ALCOHOL + CHOLESTEROL + BETADIET + RETDIET + 
+    RETPLASMA + AGE:SEX + AGE:CALORIES + AGE:FAT + AGE:FIBER + 
+    SEX:SMOKSTAT + SEX:QUETELET + SEX:CALORIES + SEX:RETDIET + 
+    SMOKSTAT:ALCOHOL + CALORIES:BETADIET + CALORIES:RETDIET + 
+    FIBER:BETADIET + FIBER:RETPLASMA + ALCOHOL:RETDIET + ALCOHOL:RETPLASMA + 
+    CHOLESTEROL:RETDIET + RETDIET:RETPLASMA, data = train_b)
+
+
+
+#Validate interaction on BETAPLASMA for 5 models. The larger ones will likely be overfitted and not used but included just incase. 
+
+```{r}
+ab_1it = lm(formula = BETAPLASMA ~ AGE + SEX + QUETELET + CALORIES + FAT +    ALCOHOL + CHOLESTEROL + RETDIET + AGE:CALORIES + AGE:FAT + 
+    SEX:RETDIET + ALCOHOL:RETDIET + CHOLESTEROL:RETDIET, data = train_b)
+ab_1iv =lm(formula = BETAPLASMA ~ AGE + SEX + QUETELET + CALORIES + FAT + 
+    ALCOHOL + CHOLESTEROL + RETDIET + AGE:CALORIES + AGE:FAT + 
+    SEX:RETDIET + ALCOHOL:RETDIET + CHOLESTEROL:RETDIET, data = valid_b) 
+
+bb_1it = lm(formula = BETAPLASMA ~ QUETELET + CHOLESTEROL + FIBER + RETPLASMA + 
+    CHOLESTEROL:RETPLASMA, data = train_b)
+bb_1iv =lm(formula = BETAPLASMA ~ QUETELET + CHOLESTEROL + FIBER + RETPLASMA + 
+    CHOLESTEROL:RETPLASMA, data = valid_b)
+
+cb_1it=lm(formula = BETAPLASMA ~ AGE + SEX + SMOKSTAT + QUETELET + CALORIES + 
+    FAT + FIBER + ALCOHOL + CHOLESTEROL + BETADIET + RETDIET + 
+    RETPLASMA + AGE:SEX + AGE:CALORIES + AGE:FAT + AGE:FIBER + 
+    SEX:SMOKSTAT + SEX:QUETELET + SEX:CALORIES + SEX:RETDIET + 
+    SMOKSTAT:ALCOHOL + CALORIES:BETADIET + CALORIES:RETDIET + 
+    FIBER:BETADIET + FIBER:RETPLASMA + ALCOHOL:RETDIET + ALCOHOL:RETPLASMA + 
+    CHOLESTEROL:RETDIET + RETDIET:RETPLASMA, data = train_b)
+
+cb_1iv=lm(formula = BETAPLASMA ~ AGE + SEX + SMOKSTAT + QUETELET + CALORIES + 
+    FAT + FIBER + ALCOHOL + CHOLESTEROL + BETADIET + RETDIET + 
+    RETPLASMA + AGE:SEX + AGE:CALORIES + AGE:FAT + AGE:FIBER + 
+    SEX:SMOKSTAT + SEX:QUETELET + SEX:CALORIES + SEX:RETDIET + 
+    SMOKSTAT:ALCOHOL + CALORIES:BETADIET + CALORIES:RETDIET + 
+    FIBER:BETADIET + FIBER:RETPLASMA + ALCOHOL:RETDIET + ALCOHOL:RETPLASMA + 
+    CHOLESTEROL:RETDIET + RETDIET:RETPLASMA, data = valid_b)
+
+
+db_1it=lm(formula = BETAPLASMA ~ QUETELET + CHOLESTEROL + FIBER + RETPLASMA + 
+    VITUSE + AGE + SEX + BETADIET + SMOKSTAT + CHOLESTEROL:RETPLASMA + 
+    VITUSE:SEX + SEX:BETADIET + VITUSE:BETADIET + BETADIET:SMOKSTAT + 
+    AGE:SMOKSTAT + CHOLESTEROL:SEX, data = train_b)
+db_1iv=lm(formula = BETAPLASMA ~ QUETELET + CHOLESTEROL + FIBER + RETPLASMA + 
+    VITUSE + AGE + SEX + BETADIET + SMOKSTAT + CHOLESTEROL:RETPLASMA + 
+    VITUSE:SEX + SEX:BETADIET + VITUSE:BETADIET + BETADIET:SMOKSTAT + 
+    AGE:SMOKSTAT + CHOLESTEROL:SEX, data = valid_b)
+  
+eb_1it= lm(formula = BETAPLASMA ~ QUETELET + FAT + RETPLASMA + FIBER + 
+    FAT:RETPLASMA, data = train_b)
+eb_1iv= lm(formula = BETAPLASMA ~ QUETELET + FAT + RETPLASMA + FIBER + 
+    FAT:RETPLASMA, data = valid_b)
+
+ab_1i_sum = cbind(coef(summary(ab_1it))[,1], coef(summary(ab_1iv))[,1],
+coef(summary(ab_1it))[,2], coef(summary(ab_1iv))[,2])
+colnames(ab_1i_sum) = c("ab_1i:Train Est","Valid Est","Train s.e.","Valid s.e.")
+
+bb_1i_sum = cbind(coef(summary(bb_1it))[,1], coef(summary(bb_1iv))[,1],
+coef(summary(bb_1it))[,2], coef(summary(bb_1iv))[,2])
+colnames(bb_1i_sum) = c("bb_1i:Train Est","Valid Est","Train s.e.","Valid s.e.")
+
+cb_1i_sum = cbind(coef(summary(cb_1it))[,1], coef(summary(cb_1iv))[,1],
+coef(summary(cb_1it))[,2], coef(summary(cb_1iv))[,2])
+colnames(cb_1i_sum) = c("cb_1it:Train Est","Valid Est","Train s.e.","Valid s.e.")
+
+
+db_1i_sum = cbind(coef(summary(db_1it))[,1], coef(summary(db_1iv))[,1],
+coef(summary(db_1it))[,2], coef(summary(db_1iv))[,2])
+colnames(db_1i_sum) = c("db_1it:Train Est","Valid Est","Train s.e.","Valid s.e.")
+
+
+eb_1i_sum = cbind(coef(summary(eb_1it))[,1], coef(summary(eb_1iv))[,1],
+coef(summary(eb_1it))[,2], coef(summary(eb_1iv))[,2])
+colnames(eb_1i_sum) = c("eb_1i:Train Est","Valid Est","Train s.e.","Valid s.e.")
+```
+
+```{r}
+ab_1i_sum
+bb_1i_sum
+cb_1i_sum
+db_1i_sum
+eb_1i_sum
+#from this the second model seems better
+```
+
+```{r}
+
+
+
+sse_ab_1it = sum(ab_1it$residuals^2)
+sse_ab_1iv = sum(ab_1iv$residuals^2)
+Radj_ab_1it = summary(ab_1it)$adj.r.squared
+Radj_ab_1iv = summary(ab_1iv)$adj.r.squared
+train_ab_1it_sum = c(sse_ab_1it,Radj_ab_1it)
+valid_ab_1iv_sum = c(sse_ab_1iv,Radj_ab_1iv)
+criteria_ab_1i = rbind(train_ab_1it_sum,valid_ab_1iv_sum)
+colnames(criteria_ab_1i) = c("ab_1iSSE","R2_adj")
+criteria_ab_1i
+
+
+
+sse_bb_1it = sum(bb_1it$residuals^2)
+sse_bb_1iv = sum(bb_1iv$residuals^2)
+Radj_bb_1it = summary(bb_1it)$adj.r.squared
+Radj_bb_1iv = summary(bb_1iv)$adj.r.squared
+train_bb_1it_sum = c(sse_bb_1it,Radj_bb_1it)
+valid_bb_1iv_sum = c(sse_bb_1iv,Radj_bb_1iv)
+criteria_bb_1i = rbind(train_bb_1it_sum,valid_bb_1iv_sum)
+colnames(criteria_bb_1i) = c("bb_1iSSE","R2_adj")
+criteria_bb_1i
+
+
+
+sse_cb_1it = sum(cb_1it$residuals^2)
+sse_cb_1iv = sum(cb_1iv$residuals^2)
+Radj_cb_1it = summary(cb_1it)$adj.r.squared
+Radj_cb_1iv = summary(cb_1iv)$adj.r.squared
+train_cb_1it_sum = c(sse_cb_1it,Radj_cb_1it)
+valid_cb_1iv_sum = c(sse_cb_1iv,Radj_cb_1iv)
+criteria_cb_1i = rbind(train_cb_1it_sum,valid_cb_1iv_sum)
+colnames(criteria_cb_1i) = c("cb_1iSSE","R2_adj")
+criteria_cb_1i
+
+
+
+sse_db_1it = sum(db_1it$residuals^2)
+sse_db_1iv = sum(db_1iv$residuals^2)
+Radj_db_1it = summary(db_1it)$adj.r.squared
+Radj_db_1iv = summary(db_1iv)$adj.r.squared
+train_db_1it_sum = c(sse_db_1it,Radj_db_1it)
+valid_db_1iv_sum = c(sse_db_1iv,Radj_db_1iv)
+criteria_db_1i = rbind(train_db_1it_sum,valid_db_1iv_sum)
+colnames(criteria_db_1i) = c("db_1iSSE","R2_adj")
+criteria_db_1i
+
+
+
+sse_eb_1it = sum(eb_1it$residuals^2)
+sse_eb_1iv = sum(eb_1iv$residuals^2)
+Radj_eb_1it = summary(eb_1it)$adj.r.squared
+Radj_eb_1iv = summary(eb_1iv)$adj.r.squared
+train_eb_1it_sum = c(sse_eb_1it,Radj_eb_1it)
+valid_eb_1iv_sum = c(sse_eb_1iv,Radj_eb_1iv)
+criteria_eb_1i = rbind(train_eb_1it_sum,valid_eb_1iv_sum)
+colnames(criteria_eb_1i) = c("eb_1iSSE","R2_adj")
+criteria_eb_1i
+```
+
+
+```{r}
+
+#Get MSPE_v from new data
+newdata = valid_b[, -13] #remove predictor 
+newdata
+dim(newdata)
+n=dim(valid_b)[1]
+
+
+BETAPLAS.hat_ab_i = predict(ab_1it, newdata)
+
+MSPE_ab_1i = mean((valid_b$BETAPLAS - BETAPLAS.hat_ab_i)^2)
+MSPE_ab_1i
+
+sse_ab_1it/n
+
+BETAPLAS.hat_bb_i = predict(bb_1it, newdata)
+
+MSPE_bb_1i = mean((valid_b$BETAPLAS - BETAPLAS.hat_bb_i)^2)
+MSPE_bb_1i
+
+sse_bb_1it/n
+
+
+BETAPLAS.hat_cb_i = predict(cb_1it, newdata)
+
+MSPE_cb_1i = mean((valid_b$BETAPLAS - BETAPLAS.hat_cb_i)^2)
+MSPE_cb_1i
+
+sse_cb_1it/n
+
+BETAPLAS.hat_db_i = predict(db_1it, newdata)
+
+MSPE_db_1i = mean((valid_b$BETAPLAS - BETAPLAS.hat_db_i)^2)
+MSPE_db_1i
+
+sse_db_1it/n
+
+
+BETAPLAS.hat_eb_i = predict(eb_1it, newdata)
+
+MSPE_eb_1i = mean((valid_b$BETAPLAS - BETAPLAS.hat_eb_i)^2)
+MSPE_eb_1i
+
+sse_eb_1it/n
+
+
+```
+
+
+```{r}
+par(mfrow=c(2,2))
+best_b_int=lm(formula = BETAPLASMA ~ QUETELET + CHOLESTEROL + FIBER + RETPLASMA + 
+    VITUSE + AGE + SEX + BETADIET + SMOKSTAT + CHOLESTEROL:RETPLASMA + 
+    VITUSE:SEX + SEX:BETADIET + VITUSE:BETADIET + BETADIET:SMOKSTAT + 
+    AGE:SMOKSTAT + CHOLESTEROL:SEX, data = plasbt)
+plot(best_b_int)
+summary(best_b_int)
+anova(best_b_int)
+
+
+best_b_int_red=lm(formula = BETAPLASMA ~ QUETELET + CHOLESTEROL + FIBER + RETPLASMA + 
+    VITUSE + AGE + SEX + BETADIET + SMOKSTAT + CHOLESTEROL:RETPLASMA  + SEX:BETADIET + VITUSE:BETADIET + BETADIET:SMOKSTAT, data = plasbt)
+plot(best_b_int_red)
+summary(best_b_int_red)
+anova(best_b_int_red)
+
+```
+
+```{r }
+
+e=best_b_int_red$residuals ##ordinary residuals 
+h=influence(best_b_int_red)$hat ##diagonals of the hat matrix: a.k.a. leverage values 
+de=e/(1-h) ##deleted residuals 
+plot(e,de, xlab="residuals", ylab="deleted residuals")
+abline(0,1)
+summary(h) #unlikely we will be able to delete any residuals  here
+n=dim(plasbt)[1]
+p=length(best_b_int_red$coefficients)
+
+stu.res.del = studres(best_b_int_red)
+head(sort(abs(stu.res.del), decreasing=TRUE))
+qt(1-.1/(2*n), n-3-1) #Bonferroni's Threshold (alpha=0.1, n=sample size, p=3) #81, but it is not influential
+
+
+
+h = influence(best_b_int_red)$hat
+
+sort(h[which(h>2*p/n)], decreasing = TRUE)
+res = best_b_int_red$residuals
+mse = anova(best_b_int_red)["Residuals", 3]
+cook.d = res^2*h/(p*mse*(1-h)^2)
+cook.d
+sort(cook.d[which(cook.d>4/(n-p))], decreasing = TRUE)
+#145
+
+
+```
+
+```{r }
+# 219      208       40        263         40         28        219        208        262 
+#0.19744700 0.12496228 0.06878510 0.06197731 0.05962089 0.03044445 
+ #       35        163        293         39        236 
+
+fit.out=lm(formula  = BETAPLASMA ~ QUETELET + CHOLESTEROL + FIBER + RETPLASMA + 
+    VITUSE + AGE + SEX + BETADIET + SMOKSTAT + CHOLESTEROL:RETPLASMA  + SEX:BETADIET + VITUSE:BETADIET + BETADIET:SMOKSTAT, data = plasbt,subset=setdiff(rownames(plasbt), c('257'))) ##exclude case 103
+#rbind(best_b_int$coefficients,fit.145$coefficients)##compare fitted regression coefficients
+#plot(best.1st$fitted.value, predict(fit.out, plasbt[,c("AGE","ALCOHOL","SEX","QUETELET","FIBER","CHOLESTEROL","BETADIET","SMOKSTAT","VITUSE","RETPLASMA")]), xlab="fitted values using all cases", ylab="fitted values without using case 145") ## compare fitted values
+#abline(0,1)
+par(mfrow=c(2,2))
+summary(best_b_int_red)
+plot(best_b_int_red)
+anova(best_b_int_red)
+
+summary(fit.out)
+plot(fit.out)
+anova(fit.out)#best we will get here 
+#there is difference
+```
+
+
+
+
+
+
+
+
+
